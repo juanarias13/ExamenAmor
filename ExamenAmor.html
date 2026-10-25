@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Solucionador de Química Universal</title>
+  
+  <style>
+    :root {
+      --bg: #F2F2F7;
+      --card: #FFFFFF;
+      --card-sec: #F8F9FA;
+      --text: #000000;
+      --text-sec: #6C6C70;
+      --blue: #007AFF;
+      --blue-soft: #EBF5FF;
+      --green: #34C759;
+      --green-soft: #E8F8EE;
+      --teal: #30B0C7;
+      --red: #FF3B30;
+      --border: rgba(60, 60, 67, 0.15);
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      --radius: 16px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #000000;
+        --card: #1C1C1E;
+        --card-sec: #2C2C2E;
+        --text: #FFFFFF;
+        --text-sec: #A0A0A5;
+        --blue: #0A84FF;
+        --blue-soft: rgba(10, 132, 255, 0.2);
+        --green: #30D158;
+        --green-soft: rgba(48, 209, 88, 0.2);
+        --teal: #64D2FF;
+        --border: rgba(255, 255, 255, 0.15);
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: calc(12px + var(--safe-top)) 14px calc(40px + var(--safe-bottom)) 14px;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 580px;
+    }
+
+    .ios-notice {
+      background: #FFF3CD;
+      border: 1px solid #FFEBAA;
+      color: #856404;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 12.5px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.35;
+    }
+    @media (prefers-color-scheme: dark) {
+      .ios-notice {
+        background: #332701;
+        border-color: #664d03;
+        color: #ffda6a;
+      }
+    }
+
+    header {
+      margin-bottom: 16px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+    p.subtitle {
+      font-size: 13.5px;
+      color: var(--text-sec);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin: 14px 0;
+    }
+    .action-btn {
+      flex: 1;
+      min-height: 48px;
+      border-radius: 12px;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      touch-action: manipulation;
+      transition: transform 0.1s ease, opacity 0.1s ease;
+    }
+    .action-btn:active {
+      transform: scale(0.96);
+      opacity: 0.85;
+    }
+    .btn-load {
+      background: var(--blue);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+    }
+    .btn-add {
+      background: var(--green);
+      color: #FFFFFF;
+    }
+    .btn-reset {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .component-box {
+      background: var(--card-sec);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+      border: 1px solid var(--border);
+    }
+    .component-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .component-title-input {
+      font-size: 15px;
+      font-weight: 700;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid var(--blue);
+      color: var(--text);
+      padding: 2px 4px;
+      width: 65%;
+      border-radius: 0;
+    }
+    .btn-delete {
+      background: rgba(255, 59, 48, 0.12);
+      color: var(--red);
+      border: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .field label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-sec);
+    }
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    input[type="number"], input[type="text"] {
+      width: 100%;
+      height: 44px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0 42px 0 10px;
+      font-size: 16px; /* Impide zoom en Safari */
+      font-weight: 600;
+      color: var(--text);
+      outline: none;
+      -webkit-appearance: none;
+    }
+    input:focus {
+      border-color: var(--blue);
+    }
+    .unit {
+      position: absolute;
+      right: 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-sec);
+      pointer-events: none;
+    }
+
+    .vol-banner {
+      background: var(--blue-soft);
+      border: 1px solid rgba(0, 122, 255, 0.2);
+      color: var(--blue);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 14px;
+    }
+
+    .tabs-wrapper {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tab-btn {
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: var(--card-sec);
+      color: var(--text-sec);
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: var(--blue);
+      color: #FFFFFF;
+      border-color: var(--blue);
+    }
+
+    .step-box {
+      background: var(--card-sec);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      border-left: 4px solid var(--teal);
+    }
+    .step-name {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .step-desc {
+      font-size: 12.5px;
+      color: var(--text-sec);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .math-rule {
+      background: var(--card);
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      line-height: 1.6;
+      margin: 6px 0;
+    }
+    .math-arrow {
+      color: var(--teal);
+      font-weight: bold;
+    }
+    .step-res {
+      background: var(--green-soft);
+      color: var(--green);
+      font-weight: 700;
+      font-size: 13.5px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: calc(20px + var(--safe-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(0, 0, 0, 0.85);
+      color: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: 24px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 999;
+      transition: transform 0.25s ease;
+      pointer-events: none;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body ontouchstart="">
+
+  <div class="container">
+
+    <div class="ios-notice">
+      <span>💡</span>
+      <span><strong>Nota iPhone:</strong> Si los botones no responden, estás en el visor de WhatsApp/Archivos. Toca <strong>Compartir ➔ Abrir en Safari</strong>.</span>
+    </div>
+
+    <header>
+      <div class="badge">🧪 QuimiCalc Universal</div>
+      <h1>Soluciones y Mezclas</h1>
+      <p class="subtitle">Resuelve cualquier ejercicio con cualquier soluto o mezcla.</p>
+    </header>
+
+    <div class="btn-row">
+      <button type="button" class="action-btn btn-load" onclick="cargarEjercicioExamen()">
+        ✨ Cargar Examen
+      </button>
+      <button type="button" class="action-btn btn-add" onclick="agregarNuevoComponente()">
+        ➕ Componente
+      </button>
+      <button type="button" class="action-btn btn-reset" onclick="limpiarTodo()">
+        🔄 Limpiar
+      </button>
+    </div>
+
+    <div class="vol-banner">
+      <span>💧 Volumen Total Mezcla:</span>
+      <span id="txtVolumenTotal" style="font-size: 16px;">1000 mL (1.0 L)</span>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Componentes y Soluciones Añadidas</span>
+      </div>
+      <div id="componentesList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Resolución Paso a Paso (Regla de 3)</span>
+      </div>
+      <div class="tabs-wrapper" id="substanceTabs"></div>
+      <div id="stepsContainer"></div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast">¡Ejercicio cargado con éxito!</div>
+
+  <script>
+    let componentes = [
+      {
+        id: 'c1',
+        nombre: 'NaCl (Cloruro de sodio)',
+        gramosIniciales: 200,
+        volumenSolucion: 500,
+        porcentajePct: 4,
+        pm: 58.4
+      },
+      {
+        id: 'c2',
+        nombre: 'Dextrosa (Glucosa)',
+        gramosIniciales: 0,
+        volumenSolucion: 500,
+        porcentajePct: 5,
+        pm: 180
+      }
+    ];
+
+    let componenteActivoId = 'c1';
+    const avogadro = 6.023;
+
+    function fmt(val, dec = 2) {
+      if (isNaN(val) || val === null || val === undefined) return '0';
+      if (Math.abs(val - Math.round(val)) < 0.0001) return Math.round(val).toString();
+      return Number(val.toFixed(dec)).toString();
+    }
+
+    function renderComponentesInputs() {
+      const cont = document.getElementById('componentesList');
+      if (!cont) return;
+
+      cont.innerHTML = componentes.map(c => `
+        <div class="component-box">
+          <div class="component-header">
+            <input type="text" class="component-title-input" value="${c.nombre}" 
+                   oninput="actualizarDato('${c.id}', 'nombre', this.value)" placeholder="Nombre del soluto">
+            ${componentes.length > 1 ? `
+              <button type="button" class="btn-delete" onclick="eliminarComponente('${c.id}')">🗑️ Eliminar</button>
+            ` : ''}
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label>Gramos Iniciales (Recipiente)</label>
+              <div class="input-wrap">
+                <input type="number" step="any" inputmode="decimal" value="${c.gramosIniciales}" 
+                       oninput="actualizarDato('${c.id}', 'gramosIniciales', parseFloat(this.value) || 0)">
+                <span class="unit">gr</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Peso Molecular (Pm)</label>
+              <div class="input-wrap">
+                <input type="number" step="any" inputmode="decimal" value="${c.pm}" 
+                       oninput="actualizarDato('${c.id}', 'pm', parseFloat(this.value) || 1)">
+                <span class="unit">g/mol</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label>Volumen Solución Añadida</label>
+              <div class="input-wrap">
+                <input type="number" step="any" inputmode="decimal" value="${c.volumenSolucion}" 
+                       oninput="actualizarDato('${c.id}', 'volumenSolucion', parseFloat(this.value) || 0)">
+                <span class="unit">mL</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Concentración (% m/v)</label>
+              <div class="input-wrap">
+                <input type="number" step="any" inputmode="decimal" value="${c.porcentajePct}" 
+                       oninput="actualizarDato('${c.id}', 'porcentajePct', parseFloat(this.value) || 0)">
+                <span class="unit">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function actualizarDato(id, campo, valor) {
+      const item = componentes.find(x => x.id === id);
+      if (item) {
+        item[campo] = valor;
+        calcularTodo();
+      }
+    }
+
+    function agregarNuevoComponente() {
+      const nuevoId = 'c_' + Date.now();
+      componentes.push({
+        id: nuevoId,
+        nombre: 'Soluto ' + (componentes.length + 1),
+        gramosIniciales: 0,
+        volumenSolucion: 250,
+        porcentajePct: 2,
+        pm: 100
+      });
+      componenteActivoId = nuevoId;
+      renderComponentesInputs();
+      calcularTodo();
+      mostrarToast('➕ Componente añadido');
+    }
+
+    function eliminarComponente(id) {
+      if (componentes.length <= 1) return;
+      componentes = componentes.filter(c => c.id !== id);
+      if (componenteActivoId === id) {
+        componenteActivoId = componentes[0].id;
+      }
+      renderComponentesInputs();
+      calcularTodo();
+      mostrarToast('Componente eliminado');
+    }
+
+    function cargarEjercicioExamen() {
+      componentes = [
+        {
+          id: 'c1',
+          nombre: 'NaCl (Cloruro de sodio)',
+          gramosIniciales: 200,
+          volumenSolucion: 500,
+          porcentajePct: 4,
+          pm: 58.4
+        },
+        {
+          id: 'c2',
+          nombre: 'Dextrosa (Glucosa)',
+          gramosIniciales: 0,
+          volumenSolucion: 500,
+          porcentajePct: 5,
+          pm: 180
+        }
+      ];
+      componenteActivoId = 'c1';
+      renderComponentesInputs();
+      calcularTodo();
+      mostrarToast('✨ ¡Ejercicio del examen cargado!');
+    }
+
+    function limpiarTodo() {
+      componentes = [
+        {
+          id: 'c1',
+          nombre: 'Soluto 1',
+          gramosIniciales: 0,
+          volumenSolucion: 0,
+          porcentajePct: 0,
+          pm: 50
+        }
+      ];
+      componenteActivoId = 'c1';
+      renderComponentesInputs();
+      calcularTodo();
+      mostrarToast('Valores reiniciados');
+    }
+
+    function seleccionarPestaña(id) {
+      componenteActivoId = id;
+      calcularTodo();
+    }
+
+    function calcularTodo() {
+      const volTotalMl = componentes.reduce((acc, curr) => acc + (curr.volumenSolucion || 0), 0);
+      const volTotalL = volTotalMl / 1000;
+
+      const txtVolumen = document.getElementById('txtVolumenTotal');
+      if (txtVolumen) {
+        txtVolumen.textContent = `${fmt(volTotalMl)} mL (${fmt(volTotalL, 3)} L)`;
+      }
+
+      const tabsWrap = document.getElementById('substanceTabs');
+      if (tabsWrap) {
+        tabsWrap.innerHTML = componentes.map(c => `
+          <button type="button" class="tab-btn ${c.id === componenteActivoId ? 'active' : ''}" 
+                  onclick="seleccionarPestaña('${c.id}')">
+            ${c.nombre || 'Sin nombre'}
+          </button>
+        `).join('');
+      }
+
+      const c = componentes.find(x => x.id === componenteActivoId) || componentes[0];
+      if (!c) return;
+
+      const gInit = c.gramosIniciales || 0;
+      const gAdd = ((c.porcentajePct || 0) * (c.volumenSolucion || 0)) / 100;
+      const gTot = gInit + gAdd;
+      const moles = c.pm > 0 ? (gTot / c.pm) : 0;
+      const molaridad = volTotalL > 0 ? (moles / volTotalL) : 0;
+      const moleculas = moles * avogadro;
+
+      const stepsCont = document.getElementById('stepsContainer');
+      if (stepsCont) {
+        stepsCont.innerHTML = `
+          <!-- Paso 1 -->
+          <div class="step-box">
+            <div class="step-name">1. Gramos de ${c.nombre}</div>
+            <div class="step-desc">Aporte de la solución al ${fmt(c.porcentajePct)}% en ${fmt(c.volumenSolucion)} mL:</div>
+            <div class="math-rule">
+              ${c.nombre} ${fmt(c.porcentajePct)} gr <span class="math-arrow">───►</span> 100 mL<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="math-arrow">───►</span> ${fmt(c.volumenSolucion)} mL<br>
+              <strong>X = (${fmt(c.porcentajePct)} gr × ${fmt(c.volumenSolucion)} mL) / 100 = ${fmt(gAdd)} gr aportados</strong><br>
+              <em>Gramos Totales = ${fmt(gInit)} gr (inicial) + ${fmt(gAdd)} gr (solución)</em>
+            </div>
+            <div class="step-res">
+              <span>Gramos Totales:</span>
+              <span>${fmt(gTot)} gr</span>
+            </div>
+          </div>
+
+          <!-- Paso 2 -->
+          <div class="step-box">
+            <div class="step-name">2. Moles de ${c.nombre}</div>
+            <div class="step-desc">Conversión con el Peso Molecular (1 mol = ${fmt(c.pm)} gr):</div>
+            <div class="math-rule">
+              1 mol <span class="math-arrow">───►</span> ${fmt(c.pm)} gr<br>
+              &nbsp;&nbsp;&nbsp;X&nbsp;&nbsp; <span class="math-arrow">───►</span> ${fmt(gTot)} gr<br>
+              <strong>X = (1 mol × ${fmt(gTot)} gr) / ${fmt(c.pm)} gr = ${fmt(moles, (moles < 0.1 ? 4 : 2))} moles</strong>
+            </div>
+            <div class="step-res">
+              <span>Moles Calculados:</span>
+              <span>${fmt(moles, (moles < 0.1 ? 4 : 2))} mol</span>
+            </div>
+          </div>
+
+          <!-- Paso 3 -->
+          <div class="step-box">
+            <div class="step-name">3. Molaridad (M)</div>
+            <div class="step-desc">Moles divididos en el Volumen Total de la mezcla (${fmt(volTotalMl)} mL = ${fmt(volTotalL, 3)} L):</div>
+            <div class="math-rule">
+              Molaridad (M) = Moles de soluto / Litros de solución<br>
+              <strong>M = ${fmt(moles, 4)} moles / ${fmt(volTotalL, 3)} L = ${fmt(molaridad, (molaridad < 0.1 ? 4 : 2))} M</strong>
+            </div>
+            <div class="step-res">
+              <span>Molaridad:</span>
+              <span>${fmt(molaridad, (molaridad < 0.1 ? 4 : 2))} Molar</span>
+            </div>
+          </div>
+
+          <!-- Paso 4 -->
+          <div class="step-box">
+            <div class="step-name">4. Número de Moléculas</div>
+            <div class="step-desc">Multiplicando moles por la constante de Avogadro (${avogadro} × 10²³):</div>
+            <div class="math-rule">
+              1 mol <span class="math-arrow">───►</span> ${avogadro} × 10²³ moléculas<br>
+              ${fmt(moles, 3)} mol <span class="math-arrow">───►</span> X<br>
+              <strong>X = ${fmt(moles, 4)} × ${avogadro} × 10²³ = ${fmt(moleculas, (moleculas < 1 ? 3 : 2))} × 10²³ moléculas</strong>
+            </div>
+            <div class="step-res">
+              <span>Total de Moléculas:</span>
+              <span>${fmt(moleculas, (moleculas < 1 ? 3 : 2))} × 10²³</span>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function mostrarToast(msg) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    window.cargarEjercicioExamen = cargarEjercicioExamen;
+    window.agregarNuevoComponente = agregarNuevoComponente;
+    window.limpiarTodo = limpiarTodo;
+    window.actualizarDato = actualizarDato;
+    window.eliminarComponente = eliminarComponente;
+    window.seleccionarPestaña = seleccionarPestaña;
+
+    renderComponentesInputs();
+    calcularTodo();
+  </script>
+</body>
+</html>
